@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">MetronHomeApp</string>
+    <string name="title_activity_main">MetronHomeApp</string>
+    <string name="package_name">android.com.metronhomeapp</string>
+    <string name="custom_url_scheme">android.com.metronhomeapp</string>
+</resources>
