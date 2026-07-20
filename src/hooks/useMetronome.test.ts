@@ -76,4 +76,22 @@ describe("useMetronome — A1 scheduler", () => {
     expect(() => act(() => result.current.start())).not.toThrow();
     act(() => result.current.stop());
   });
+
+  it("does not throw when wakeLock API is absent", () => {
+    vi.stubGlobal("AudioContext", function () { return createFakeAudioContext(); });
+    const { result } = renderHook(() => useMetronome());
+    expect(() => act(() => result.current.start())).not.toThrow();
+    expect(() => act(() => result.current.setWakeLockEnabled(false))).not.toThrow();
+    act(() => result.current.stop());
+  });
+
+  it("requests the screen wake lock on start when enabled", async () => {
+    const request = vi.fn(() => Promise.resolve({ release: vi.fn(() => Promise.resolve()) }));
+    (navigator as any).wakeLock = { request };
+    vi.stubGlobal("AudioContext", function () { return createFakeAudioContext(); });
+    const { result } = renderHook(() => useMetronome());
+    await act(async () => { result.current.start(); });
+    expect(request).toHaveBeenCalledWith("screen");
+    act(() => result.current.stop());
+  });
 });
