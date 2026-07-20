@@ -171,7 +171,7 @@ input[type="range"]::-moz-range-thumb {
 
 @keyframes beatFlash {
   0%   { opacity: 0; }
-  15%  { opacity: 0.35; }
+  20%  { opacity: 0.6; }
   100% { opacity: 0; }
 }
 .beat-flash {
@@ -179,10 +179,10 @@ input[type="range"]::-moz-range-thumb {
   inset: 0;
   pointer-events: none;
   z-index: 40;
-  background: radial-gradient(circle at center, var(--glow) 0%, transparent 70%);
-  animation: beatFlash 140ms ease-out;
+  background: radial-gradient(circle at center, hsl(var(--glow) / 0.55) 0%, transparent 75%);
+  animation: beatFlash 160ms ease-out;
 }
 .beat-flash--accent {
-  background: radial-gradient(circle at center, var(--primary) 0%, transparent 75%);
-  animation: beatFlash 200ms ease-out;
+  background: radial-gradient(circle at center, hsl(var(--primary) / 0.75) 0%, transparent 80%);
+  animation: beatFlash 220ms ease-out;
 }
