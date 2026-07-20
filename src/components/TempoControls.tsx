@@ -12,7 +12,7 @@ export function TempoControls({ bpm, onBpmChange }: TempoControlsProps) {
         <label className="text-xs text-muted-foreground">Tempo</label>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => onBpmChange(Math.max(0, bpm - 1))}
+            onClick={() => onBpmChange(Math.max(30, bpm - 1))}
             className="w-8 h-8 rounded-lg glass-subtle flex items-center justify-center text-foreground hover:text-primary transition-colors active:scale-95"
           >
             −
@@ -22,7 +22,7 @@ export function TempoControls({ bpm, onBpmChange }: TempoControlsProps) {
             value={bpm}
             onChange={(e) => onBpmChange(Number(e.target.value))}
             className="w-14 text-center bg-muted/50 rounded-lg py-1 font-mono-display text-sm text-foreground border-0 outline-none focus:ring-1 focus:ring-primary"
-            min={0}
+            min={30}
             max={300}
           />
           <button
@@ -35,7 +35,7 @@ export function TempoControls({ bpm, onBpmChange }: TempoControlsProps) {
       </div>
       <input
         type="range"
-        min={0}
+        min={30}
         max={300}
         value={bpm}
         onChange={(e) => onBpmChange(Number(e.target.value))}

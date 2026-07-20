@@ -176,7 +176,7 @@ export function useMetronome() {
   }, [start, stop]);
 
   const setBpm = useCallback((bpm: number) => {
-    setState(prev => ({ ...prev, bpm: Math.max(0, Math.min(300, bpm)) }));
+    setState(prev => ({ ...prev, bpm: Math.max(30, Math.min(300, bpm)) }));
   }, []);
 
   const setVolume = useCallback((volume: number) => {

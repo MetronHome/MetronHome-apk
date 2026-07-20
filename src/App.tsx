@@ -1,18 +1,16 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { MetronomeProvider } from "@/context/MetronomeContext";
 import Index from "./pages/Index.tsx";
 import Presets from "./pages/Presets.tsx";
 import About from "./pages/About.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
+  <TooltipProvider>
+    <MetronomeProvider>
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -23,8 +21,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+    </MetronomeProvider>
+  </TooltipProvider>
 );
 
 export default App;

@@ -6,7 +6,7 @@ import {
   Plus,
 } from "lucide-react";
 import { useState } from "react";
-import { useMetronome } from "@/hooks/useMetronome";
+import { useMetronomeContext } from "@/context/MetronomeContext";
 import { useTapTempo } from "@/hooks/useTapTempo";
 import { usePresets } from "@/hooks/usePresets";
 import { useSessionTimer } from "@/hooks/useSessionTimer";
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/accordion";
 
 const Index = () => {
-  const metronome = useMetronome();
+  const metronome = useMetronomeContext();
   const { tap } = useTapTempo(metronome.setBpm);
   const { presets, addPreset, deletePreset } = usePresets();
   const { formatted, resetTimer } = useSessionTimer(metronome.isPlaying);

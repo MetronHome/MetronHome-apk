@@ -8,7 +8,7 @@ const About = () => (
       <img src="/logo.svg" alt="MetronHome logo" className="w-30 h-30" />
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-gradient">MetronHome</h2>
-        <p className="text-sm text-muted-foreground">Version 1.0.1</p>
+        <p className="text-sm text-muted-foreground">Version 2.1.1</p>
       </div>
       <div className="glass p-6 text-center space-y-3 max-w-sm">
         <p className="text-sm text-foreground/80">

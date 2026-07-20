@@ -59,7 +59,7 @@ export function DrawerMenu({ open, onClose }: DrawerMenuProps) {
           })}
         </nav>
         <div className="p-4 border-t border-border/30">
-          <p className="text-xs text-muted-foreground text-center">MetronHome v1.0.1</p>
+          <p className="text-xs text-muted-foreground text-center">MetronHome v2.1.1</p>
         </div>
       </div>
     </>

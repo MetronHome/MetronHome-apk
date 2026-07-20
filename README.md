@@ -9,7 +9,7 @@ A metronome mobile app — built with React 18, Vite and TypeScript, wrapped for
 - **React 18 + Vite 5 + TypeScript**
 - **Capacitor 5** (Android) — the web app is packaged as a native Android app
 - **shadcn/ui** + **Tailwind CSS** (custom dark glassmorphism theme)
-- **React Router**, **React Query**, **Zod**, **react-hook-form**
+- **React Router** (routing)
 - **@capacitor/preferences** for local preset persistence (SharedPreferences on Android)
 
 ## Getting started

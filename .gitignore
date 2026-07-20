@@ -8,6 +8,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+
+# Lockfiles: npm is the package manager (bun.lock / bun.lockb are scaffolding leftovers)
+bun.lock
+bun.lockb
+
 dist
 dist-ssr
 dev-dist

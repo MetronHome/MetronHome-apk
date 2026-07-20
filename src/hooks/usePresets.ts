@@ -29,23 +29,33 @@ export function usePresets() {
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loaded, setLoaded] = useState(false);
 
+  const readFromStorage = useCallback(async (): Promise<Preset[]> => {
+    try {
+      const { value } = await Preferences.get({ key: STORAGE_KEY });
+      if (!value) return [];
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? (parsed as Preset[]) : [];
+    } catch {
+      // corrupted/unavailable storage: start fresh rather than crashing
+      return [];
+    }
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
-    Preferences.get({ key: STORAGE_KEY })
-      .then(({ value }) => {
+    readFromStorage()
+      .then((data) => {
         if (cancelled) return;
-        if (value) setPresets(JSON.parse(value));
+        setPresets(data);
+        setLoaded(true);
       })
       .catch(() => {
-        // ignore unavailable/corrupted storage, start with empty list
-      })
-      .finally(() => {
         if (!cancelled) setLoaded(true);
       });
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [readFromStorage]);
 
   const save = useCallback(async (data: Preset[]) => {
     setPresets(data);
@@ -53,7 +63,7 @@ export function usePresets() {
   }, []);
 
   const addPreset = useCallback(
-    (
+    async (
       name: string,
       bpm: number,
       volume: number,
@@ -62,6 +72,8 @@ export function usePresets() {
       soundType: SoundType,
       accentFirstBeat: boolean,
     ) => {
+      // Read fresh from storage first to avoid losing concurrent writes
+      const current = await readFromStorage();
       const preset: Preset = {
         id: generateId(),
         name,
@@ -73,20 +85,17 @@ export function usePresets() {
         accentFirstBeat,
         createdAt: Date.now(),
       };
-      const next = [...presets, preset];
-      setPresets(next);
-      void save(next);
+      await save([...current, preset]);
     },
-    [presets, save],
+    [readFromStorage, save],
   );
 
   const deletePreset = useCallback(
-    (id: string) => {
-      const next = presets.filter((p) => p.id !== id);
-      setPresets(next);
-      void save(next);
+    async (id: string) => {
+      const current = await readFromStorage();
+      await save(current.filter((p) => p.id !== id));
     },
-    [presets, save],
+    [readFromStorage, save],
   );
 
   return { presets, addPreset, deletePreset, loaded };
