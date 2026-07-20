@@ -10,7 +10,23 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dev-dist
 *.local
+
+# Android signing (do NOT commit the keystore or its properties)
+android/keystore.properties
+*.keystore
+
+# Windows-side build artifacts (Android build runs on the Windows FS via bash.exe)
+metronhome-android/
+metronhome-*.aab
+metronhome-*.apks
+metronhome-apks-extract/
+mh-apks/
+
+# Windows/WSL download artifacts
+*Zone.Identifier
+
 
 # Editor directories and files
 .vscode/*

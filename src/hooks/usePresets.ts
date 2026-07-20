@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { Preferences } from "@capacitor/preferences";
 import type { TimeSignature, Subdivision, SoundType } from "./useMetronome";
 
 export interface Preset {
@@ -15,19 +16,40 @@ export interface Preset {
 
 const STORAGE_KEY = "metronome-presets";
 
+// crypto.randomUUID is not available in older Android WebViews (API < 33).
+// Fallback to a stable-enough unique id.
+function generateId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function usePresets() {
   const [presets, setPresets] = useState<Preset[]>([]);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setPresets(JSON.parse(stored));
-    } catch {}
+    let cancelled = false;
+    Preferences.get({ key: STORAGE_KEY })
+      .then(({ value }) => {
+        if (cancelled) return;
+        if (value) setPresets(JSON.parse(value));
+      })
+      .catch(() => {
+        // ignore unavailable/corrupted storage, start with empty list
+      })
+      .finally(() => {
+        if (!cancelled) setLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const save = useCallback((data: Preset[]) => {
+  const save = useCallback(async (data: Preset[]) => {
     setPresets(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    await Preferences.set({ key: STORAGE_KEY, value: JSON.stringify(data) });
   }, []);
 
   const addPreset = useCallback(
@@ -41,7 +63,7 @@ export function usePresets() {
       accentFirstBeat: boolean,
     ) => {
       const preset: Preset = {
-        id: crypto.randomUUID(),
+        id: generateId(),
         name,
         bpm,
         volume,
@@ -51,17 +73,21 @@ export function usePresets() {
         accentFirstBeat,
         createdAt: Date.now(),
       };
-      save([...presets, preset]);
+      const next = [...presets, preset];
+      setPresets(next);
+      void save(next);
     },
     [presets, save],
   );
 
   const deletePreset = useCallback(
     (id: string) => {
-      save(presets.filter((p) => p.id !== id));
+      const next = presets.filter((p) => p.id !== id);
+      setPresets(next);
+      void save(next);
     },
     [presets, save],
   );
 
-  return { presets, addPreset, deletePreset };
+  return { presets, addPreset, deletePreset, loaded };
 }
