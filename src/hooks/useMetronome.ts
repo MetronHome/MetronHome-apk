@@ -117,44 +117,50 @@ export function useMetronome() {
     osc.connect(envGain);
     envGain.connect(gain);
 
+    const isWood = s.soundType === "wood";
+    const decay = isWood ? 0.04 : 0.05;
+
     if (isAccent && s.accentFirstBeat) {
-      // Accent: higher pitch, louder
-      switch (s.soundType) {
-        case "click":
-          osc.frequency.setValueAtTime(1200, time);
-          osc.type = "sine";
-          break;
-        case "accent":
-          osc.frequency.setValueAtTime(1500, time);
-          osc.type = "triangle";
-          break;
-        case "wood":
-          osc.frequency.setValueAtTime(800, time);
-          osc.type = "square";
-          break;
+      if (isWood) {
+        osc.type = "square";
+        osc.frequency.setValueAtTime(1200, time);
+        const bp = ctx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.setValueAtTime(1800, time);
+        osc.disconnect();
+        osc.connect(bp);
+        bp.connect(envGain);
+      } else if (s.soundType === "accent") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(1600, time);
+      } else {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1500, time);
       }
       envGain.gain.setValueAtTime(1.0, time);
     } else {
-      switch (s.soundType) {
-        case "click":
-          osc.frequency.setValueAtTime(800, time);
-          osc.type = "sine";
-          break;
-        case "accent":
-          osc.frequency.setValueAtTime(1000, time);
-          osc.type = "triangle";
-          break;
-        case "wood":
-          osc.frequency.setValueAtTime(600, time);
-          osc.type = "square";
-          break;
+      if (isWood) {
+        osc.type = "square";
+        osc.frequency.setValueAtTime(800, time);
+        const bp = ctx.createBiquadFilter();
+        bp.type = "bandpass";
+        bp.frequency.setValueAtTime(1000, time);
+        osc.disconnect();
+        osc.connect(bp);
+        bp.connect(envGain);
+      } else if (s.soundType === "accent") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(1000, time);
+      } else {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(1000, time);
       }
       envGain.gain.setValueAtTime(0.6, time);
     }
 
-    envGain.gain.exponentialRampToValueAtTime(0.001, time + 0.05);
+    envGain.gain.exponentialRampToValueAtTime(0.001, time + decay);
     osc.start(time);
-    osc.stop(time + 0.05);
+    osc.stop(time + decay);
   }, []);
 
   const scheduler = useCallback(() => {

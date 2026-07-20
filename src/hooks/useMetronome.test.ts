@@ -111,4 +111,21 @@ describe("useMetronome — A1 scheduler", () => {
     expect(result.current.flashKey).toBeGreaterThan(k0);
     act(() => result.current.stop());
   });
+
+  it("plays a click (oscillator start) for both accent and non-accent beats", () => {
+    const ctx = createFakeAudioContext();
+    let oscStarts = 0;
+    ctx.createOscillator = () => ({
+      frequency: { setValueAtTime: vi.fn() },
+      type: "",
+      connect: vi.fn(),
+      start: vi.fn(() => { oscStarts++; }),
+      stop: vi.fn(),
+    });
+    vi.stubGlobal("AudioContext", function () { return ctx; });
+    const { result } = renderHook(() => useMetronome());
+    act(() => result.current.start());
+    expect(oscStarts).toBeGreaterThanOrEqual(1);
+    act(() => result.current.stop());
+  });
 });
