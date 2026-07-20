@@ -47,7 +47,8 @@ export function useMetronome() {
 
   const audioCtxRef = useRef<AudioContext | null>(null);
   const gainRef = useRef<GainNode | null>(null);
-  const timerRef = useRef<number | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const fallbackTimerRef = useRef<number | null>(null);
   const nextNoteTimeRef = useRef(0);
   const currentBeatRef = useRef(0);
   const stateRef = useRef(state);
@@ -148,27 +149,49 @@ export function useMetronome() {
     }
   }, [playClick]);
 
+  const startWorker = useCallback(() => {
+    try {
+      workerRef.current = new Worker(
+        new URL("../audio/metronome.worker.ts", import.meta.url),
+        { type: "module" }
+      );
+      workerRef.current.onmessage = () => scheduler();
+      workerRef.current.postMessage("start");
+    } catch {
+      // Fallback : timer du thread principal (vieille WebView sans Worker)
+      const tick = () => {
+        scheduler();
+        fallbackTimerRef.current = window.setTimeout(tick, 25);
+      };
+      tick();
+    }
+  }, [scheduler]);
+
+  const stopWorker = useCallback(() => {
+    if (workerRef.current) {
+      workerRef.current.postMessage("stop");
+      workerRef.current.terminate();
+      workerRef.current = null;
+    }
+    if (fallbackTimerRef.current) {
+      clearTimeout(fallbackTimerRef.current);
+      fallbackTimerRef.current = null;
+    }
+  }, []);
+
   const start = useCallback(() => {
     initAudio();
     const ctx = audioCtxRef.current!;
     currentBeatRef.current = 0;
     nextNoteTimeRef.current = ctx.currentTime;
     setState(prev => ({ ...prev, isPlaying: true, currentBeat: 0 }));
-
-    const tick = () => {
-      scheduler();
-      timerRef.current = window.setTimeout(tick, 25);
-    };
-    tick();
-  }, [initAudio, scheduler]);
+    startWorker();
+  }, [initAudio, startWorker]);
 
   const stop = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+    stopWorker();
     setState(prev => ({ ...prev, isPlaying: false, currentBeat: 0 }));
-  }, []);
+  }, [stopWorker]);
 
   const toggle = useCallback(() => {
     if (stateRef.current.isPlaying) stop();
