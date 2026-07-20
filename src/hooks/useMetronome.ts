@@ -87,12 +87,13 @@ export function useMetronome() {
         stateRef.current.isPlaying &&
         stateRef.current.wakeLockEnabled
       ) {
+        releaseWakeLock();
         acquireWakeLock();
       }
     };
     document.addEventListener("visibilitychange", onVisibility);
     return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [acquireWakeLock]);
+  }, [acquireWakeLock, releaseWakeLock]);
 
   const initAudio = useCallback(() => {
     if (!audioCtxRef.current) {

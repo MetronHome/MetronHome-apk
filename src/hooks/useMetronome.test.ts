@@ -113,21 +113,25 @@ describe("useMetronome — A1 scheduler", () => {
     act(() => result.current.stop());
   });
 
-  it("plays a click (oscillator start) for both accent and non-accent beats", () => {
+  it("plays a click with distinct accent/non-accent frequencies (1500/1000 Hz) for the default sound", () => {
     const ctx = createFakeAudioContext();
-    let oscStarts = 0;
+    const freqCalls: Array<{ freq: number }> = [];
     ctx.createOscillator = () => ({
-      frequency: { setValueAtTime: vi.fn() },
+      frequency: { setValueAtTime: vi.fn((f: number) => { freqCalls.push({ freq: f }); }) },
       type: "",
       connect: vi.fn(),
-      start: vi.fn(() => { oscStarts++; }),
+      start: vi.fn(),
       stop: vi.fn(),
     });
     vi.stubGlobal("AudioContext", function () { return ctx; });
     const { result } = renderHook(() => useMetronome());
     act(() => result.current.start());
-    expect(oscStarts).toBeGreaterThanOrEqual(1);
+    ctx.currentTime = 1.0;
+    act(() => capturedWorker.onmessage?.({} as MessageEvent));
     act(() => result.current.stop());
+
+    expect(freqCalls.some(c => c.freq === 1500)).toBe(true);
+    expect(freqCalls.some(c => c.freq === 1000)).toBe(true);
   });
 
   it("vibrates only when vibrationEnabled is true", () => {
