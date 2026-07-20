@@ -1,4 +1,4 @@
-# MetronHome v2.1.1
+# MetronHome v2.2.0
 
 A metronome mobile app — built with React 18, Vite and TypeScript, wrapped for Android with Capacitor 5.
 
@@ -11,6 +11,13 @@ A metronome mobile app — built with React 18, Vite and TypeScript, wrapped for
 - **shadcn/ui** + **Tailwind CSS** (custom dark glassmorphism theme)
 - **React Router** (routing)
 - **@capacitor/preferences** for local preset persistence (SharedPreferences on Android)
+
+## Features
+
+- Tempo stable même écran tamisé (scheduler Web Worker)
+- Écran maintenu allumé pendant la pratique (WakeLock)
+- Flash visuel plein écran par beat (activable)
+- Timbres de clic enrichis (woodblock, accent distinct)
 
 ## Getting started
 

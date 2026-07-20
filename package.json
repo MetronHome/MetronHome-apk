@@ -1,7 +1,7 @@
 {
   "name": "metronhome-ahp",
   "private": true,
-  "version": "2.1.1",
+  "version": "2.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "aab": "npm run build && npm run android:sync && npm run build:prod",
     "apk": "cd android && gradlew assembleDebug",
     "verify:aab": "bash.exe -c \"C:/devapp/27.MetronHome_app/phone/metronhome-verify.bat\"",
-    "install:phone": "bash.exe -c \"C:/devapp/27.MetronHome_app/phone/metronhome-verify.bat && C:/Users/djodj/AppData/Local/Android/Sdk/platform-tools/adb.exe install -r C:/devapp/27.MetronHome_app/phone/MetronHome-v2.1.1.apks\"",
+    "install:phone": "bash.exe -c \"C:/devapp/27.MetronHome_app/phone/metronhome-verify.bat && C:/Users/djodj/AppData/Local/Android/Sdk/platform-tools/adb.exe install -r C:/devapp/27.MetronHome_app/phone/MetronHome-v2.2.0.apks\"",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",

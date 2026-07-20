@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 let timer: ReturnType<typeof setInterval> | null = null;
 
 const ctx: any = self;
