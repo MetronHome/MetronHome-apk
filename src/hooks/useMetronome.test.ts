@@ -128,4 +128,22 @@ describe("useMetronome — A1 scheduler", () => {
     expect(oscStarts).toBeGreaterThanOrEqual(1);
     act(() => result.current.stop());
   });
+
+  it("vibrates only when vibrationEnabled is true", () => {
+    const vibrate = vi.fn();
+    (navigator as any).vibrate = vibrate;
+    const ctx = createFakeAudioContext();
+    vi.stubGlobal("AudioContext", function () { return ctx; });
+    const { result } = renderHook(() => useMetronome());
+    act(() => result.current.setVibrationEnabled(false));
+    act(() => result.current.start());
+    ctx.currentTime = 1.0;
+    act(() => capturedWorker.onmessage?.({} as MessageEvent));
+    expect(vibrate).not.toHaveBeenCalled();
+    act(() => result.current.setVibrationEnabled(true));
+    ctx.currentTime = 2.0;
+    act(() => capturedWorker.onmessage?.({} as MessageEvent));
+    expect(vibrate).toHaveBeenCalled();
+    act(() => result.current.stop());
+  });
 });
