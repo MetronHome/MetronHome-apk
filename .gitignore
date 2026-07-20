@@ -43,3 +43,6 @@ mh-apks/
 *.njsproj
 *.sln
 *.sw?
+
+# Brainstorm visual companion (mockups temporaires)
+.superpowers/
