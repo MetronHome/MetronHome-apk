@@ -15,6 +15,8 @@ interface MetronomeState {
   accentFirstBeat: boolean;
   vibrationEnabled: boolean;
   wakeLockEnabled: boolean;
+  visualFlashEnabled: boolean;
+  flashKey: number;
 }
 
 const getBeatsPerMeasure = (ts: TimeSignature) => {
@@ -45,6 +47,8 @@ export function useMetronome() {
     accentFirstBeat: true,
     vibrationEnabled: false,
     wakeLockEnabled: true,
+    visualFlashEnabled: true,
+    flashKey: 0,
   });
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -170,10 +174,11 @@ export function useMetronome() {
 
       if (isMainBeat) {
         setState(prev => ({ ...prev, currentBeat: mainBeatIndex }));
-
-        // Vibration
+        if (s.visualFlashEnabled) {
+          setState(prev => ({ ...prev, flashKey: prev.flashKey + 1 }));
+        }
         if (s.vibrationEnabled && navigator.vibrate) {
-          navigator.vibrate(isAccent ? 30 : 15);
+          navigator.vibrate(isAccent ? 35 : 12);
         }
       }
 
@@ -271,6 +276,10 @@ export function useMetronome() {
     }
   }, [acquireWakeLock]);
 
+  const setVisualFlashEnabled = useCallback((visualFlashEnabled: boolean) => {
+    setState(prev => ({ ...prev, visualFlashEnabled }));
+  }, []);
+
   const reset = useCallback(() => {
     stop();
     setState({
@@ -284,6 +293,8 @@ export function useMetronome() {
       accentFirstBeat: true,
       vibrationEnabled: false,
       wakeLockEnabled: true,
+      visualFlashEnabled: true,
+      flashKey: 0,
     });
   }, [stop]);
 
@@ -300,6 +311,7 @@ export function useMetronome() {
     setAccentFirstBeat,
     setVibrationEnabled,
     setWakeLockEnabled,
+    setVisualFlashEnabled,
     reset,
     beatsPerMeasure: getBeatsPerMeasure(state.timeSignature),
   };

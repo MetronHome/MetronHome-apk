@@ -34,6 +34,13 @@ const Index = () => {
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background">
+      {metronome.isPlaying && metronome.visualFlashEnabled && (
+        <div
+          key={metronome.flashKey}
+          className={`beat-flash ${metronome.currentBeat === 0 ? "beat-flash--accent" : ""}`}
+          aria-hidden
+        />
+      )}
       <Header />
 
       <main className="flex-1 max-w-md mx-auto w-full px-4 py-4 pb-6 flex flex-col gap-4">
@@ -132,6 +139,10 @@ const Index = () => {
                 onSoundTypeChange={metronome.setSoundType}
                 onAccentFirstBeatChange={metronome.setAccentFirstBeat}
                 onVibrationChange={metronome.setVibrationEnabled}
+                wakeLockEnabled={metronome.wakeLockEnabled}
+                visualFlashEnabled={metronome.visualFlashEnabled}
+                onWakeLockChange={metronome.setWakeLockEnabled}
+                onVisualFlashChange={metronome.setVisualFlashEnabled}
                 onReset={() => {
                   metronome.reset();
                   resetTimer();

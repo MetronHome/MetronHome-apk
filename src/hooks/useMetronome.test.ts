@@ -94,4 +94,21 @@ describe("useMetronome — A1 scheduler", () => {
     expect(request).toHaveBeenCalledWith("screen");
     act(() => result.current.stop());
   });
+
+  it("increments flashKey on main beats only when visualFlashEnabled is true", () => {
+    const ctx = createFakeAudioContext();
+    vi.stubGlobal("AudioContext", function () { return ctx; });
+    const { result } = renderHook(() => useMetronome());
+    act(() => result.current.setVisualFlashEnabled(false));
+    act(() => result.current.start());
+    const k0 = result.current.flashKey;
+    ctx.currentTime = 1.0;
+    act(() => capturedWorker.onmessage?.({} as MessageEvent));
+    expect(result.current.flashKey).toBe(k0);
+    act(() => result.current.setVisualFlashEnabled(true));
+    ctx.currentTime = 2.0;
+    act(() => capturedWorker.onmessage?.({} as MessageEvent));
+    expect(result.current.flashKey).toBeGreaterThan(k0);
+    act(() => result.current.stop());
+  });
 });
