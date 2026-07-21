@@ -1,21 +1,15 @@
 import type { TimeSignature, Subdivision, SoundType } from "@/hooks/useMetronome";
-import { Music, Vibrate, RotateCcw, Monitor, Zap } from "lucide-react";
+import { Music, RotateCcw } from "lucide-react";
 
 interface MetronomeSettingsProps {
   timeSignature: TimeSignature;
   subdivision: Subdivision;
   soundType: SoundType;
   accentFirstBeat: boolean;
-  vibrationEnabled: boolean;
-  wakeLockEnabled: boolean;
-  visualFlashEnabled: boolean;
   onTimeSignatureChange: (ts: TimeSignature) => void;
   onSubdivisionChange: (s: Subdivision) => void;
   onSoundTypeChange: (s: SoundType) => void;
   onAccentFirstBeatChange: (v: boolean) => void;
-  onVibrationChange: (v: boolean) => void;
-  onWakeLockChange: (v: boolean) => void;
-  onVisualFlashChange: (v: boolean) => void;
   onReset: () => void;
 }
 
@@ -64,16 +58,10 @@ export function MetronomeSettings({
   subdivision,
   soundType,
   accentFirstBeat,
-  vibrationEnabled,
-  wakeLockEnabled,
-  visualFlashEnabled,
   onTimeSignatureChange,
   onSubdivisionChange,
   onSoundTypeChange,
   onAccentFirstBeatChange,
-  onVibrationChange,
-  onWakeLockChange,
-  onVisualFlashChange,
   onReset,
 }: MetronomeSettingsProps) {
   return (
@@ -109,42 +97,6 @@ export function MetronomeSettings({
           }`}
         >
           Accent 1er temps
-        </button>
-        <button
-          onClick={() => onVibrationChange(!vibrationEnabled)}
-          className={`flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-            vibrationEnabled
-              ? "bg-accent/20 text-accent border border-accent/30"
-              : "glass-subtle text-muted-foreground"
-          }`}
-        >
-          <Vibrate className="w-3 h-3" />
-          Vibration
-        </button>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => onWakeLockChange(!wakeLockEnabled)}
-          className={`flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-            wakeLockEnabled
-              ? "bg-primary/20 text-primary border border-primary/30"
-              : "glass-subtle text-muted-foreground"
-          }`}
-        >
-          <Monitor className="w-3 h-3" />
-          Écran allumé
-        </button>
-        <button
-          onClick={() => onVisualFlashChange(!visualFlashEnabled)}
-          className={`flex-1 flex items-center justify-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-            visualFlashEnabled
-              ? "bg-accent/20 text-accent border border-accent/30"
-              : "glass-subtle text-muted-foreground"
-          }`}
-        >
-          <Zap className="w-3 h-3" />
-          Flash visuel
         </button>
       </div>
 

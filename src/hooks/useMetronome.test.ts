@@ -78,38 +78,11 @@ describe("useMetronome — A1 scheduler", () => {
     act(() => result.current.stop());
   });
 
-  it("does not throw when wakeLock API is absent", () => {
+  it("does not throw when Worker is undefined", () => {
+    vi.stubGlobal("Worker", undefined);
     vi.stubGlobal("AudioContext", function () { return createFakeAudioContext(); });
     const { result } = renderHook(() => useMetronome());
     expect(() => act(() => result.current.start())).not.toThrow();
-    expect(() => act(() => result.current.setWakeLockEnabled(false))).not.toThrow();
-    act(() => result.current.stop());
-  });
-
-  it("requests the screen wake lock on start when enabled", async () => {
-    const request = vi.fn(() => Promise.resolve({ release: vi.fn(() => Promise.resolve()) }));
-    (navigator as any).wakeLock = { request };
-    vi.stubGlobal("AudioContext", function () { return createFakeAudioContext(); });
-    const { result } = renderHook(() => useMetronome());
-    await act(async () => { result.current.start(); });
-    expect(request).toHaveBeenCalledWith("screen");
-    act(() => result.current.stop());
-  });
-
-  it("increments flashKey on main beats only when visualFlashEnabled is true", () => {
-    const ctx = createFakeAudioContext();
-    vi.stubGlobal("AudioContext", function () { return ctx; });
-    const { result } = renderHook(() => useMetronome());
-    act(() => result.current.setVisualFlashEnabled(false));
-    act(() => result.current.start());
-    const k0 = result.current.flashKey;
-    ctx.currentTime = 1.0;
-    act(() => capturedWorker.onmessage?.({} as MessageEvent));
-    expect(result.current.flashKey).toBe(k0);
-    act(() => result.current.setVisualFlashEnabled(true));
-    ctx.currentTime = 2.0;
-    act(() => capturedWorker.onmessage?.({} as MessageEvent));
-    expect(result.current.flashKey).toBeGreaterThan(k0);
     act(() => result.current.stop());
   });
 
@@ -132,23 +105,5 @@ describe("useMetronome — A1 scheduler", () => {
 
     expect(freqCalls.some(c => c.freq === 1500)).toBe(true);
     expect(freqCalls.some(c => c.freq === 1000)).toBe(true);
-  });
-
-  it("vibrates only when vibrationEnabled is true", () => {
-    const vibrate = vi.fn();
-    (navigator as any).vibrate = vibrate;
-    const ctx = createFakeAudioContext();
-    vi.stubGlobal("AudioContext", function () { return ctx; });
-    const { result } = renderHook(() => useMetronome());
-    act(() => result.current.setVibrationEnabled(false));
-    act(() => result.current.start());
-    ctx.currentTime = 1.0;
-    act(() => capturedWorker.onmessage?.({} as MessageEvent));
-    expect(vibrate).not.toHaveBeenCalled();
-    act(() => result.current.setVibrationEnabled(true));
-    ctx.currentTime = 2.0;
-    act(() => capturedWorker.onmessage?.({} as MessageEvent));
-    expect(vibrate).toHaveBeenCalled();
-    act(() => result.current.stop());
   });
 });

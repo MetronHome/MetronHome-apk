@@ -13,10 +13,6 @@ interface MetronomeState {
   subdivision: Subdivision;
   timeSignature: TimeSignature;
   accentFirstBeat: boolean;
-  vibrationEnabled: boolean;
-  wakeLockEnabled: boolean;
-  visualFlashEnabled: boolean;
-  flashKey: number;
 }
 
 const getBeatsPerMeasure = (ts: TimeSignature) => {
@@ -45,10 +41,6 @@ export function useMetronome() {
     subdivision: "quarter",
     timeSignature: "4/4",
     accentFirstBeat: true,
-    vibrationEnabled: false,
-    wakeLockEnabled: true,
-    visualFlashEnabled: true,
-    flashKey: 0,
   });
 
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -58,42 +50,10 @@ export function useMetronome() {
   const nextNoteTimeRef = useRef(0);
   const currentBeatRef = useRef(0);
   const stateRef = useRef(state);
-  const wakeLockRef = useRef<WakeLockSentinel | null>(null);
 
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
-
-  const acquireWakeLock = useCallback(async () => {
-    if (!("wakeLock" in navigator)) return;
-    try {
-      wakeLockRef.current = await navigator.wakeLock.request("screen");
-    } catch {
-      // permission / batterie refusée -> ignoré
-    }
-  }, []);
-
-  const releaseWakeLock = useCallback(() => {
-    if (wakeLockRef.current) {
-      wakeLockRef.current.release().catch(() => {});
-      wakeLockRef.current = null;
-    }
-  }, []);
-
-  useEffect(() => {
-    const onVisibility = () => {
-      if (
-        document.visibilityState === "visible" &&
-        stateRef.current.isPlaying &&
-        stateRef.current.wakeLockEnabled
-      ) {
-        releaseWakeLock();
-        acquireWakeLock();
-      }
-    };
-    document.addEventListener("visibilitychange", onVisibility);
-    return () => document.removeEventListener("visibilitychange", onVisibility);
-  }, [acquireWakeLock, releaseWakeLock]);
 
   const initAudio = useCallback(() => {
     if (!audioCtxRef.current) {
@@ -181,12 +141,6 @@ export function useMetronome() {
 
       if (isMainBeat) {
         setState(prev => ({ ...prev, currentBeat: mainBeatIndex }));
-        if (s.visualFlashEnabled) {
-          setState(prev => ({ ...prev, flashKey: prev.flashKey + 1 }));
-        }
-        if (s.vibrationEnabled && navigator.vibrate) {
-          navigator.vibrate(isAccent ? 35 : 12);
-        }
       }
 
       currentBeatRef.current = (subBeat + 1) % (beatsPerMeasure * subdivMult);
@@ -231,14 +185,12 @@ export function useMetronome() {
     nextNoteTimeRef.current = ctx.currentTime;
     setState(prev => ({ ...prev, isPlaying: true, currentBeat: 0 }));
     startWorker();
-    if (stateRef.current.wakeLockEnabled) acquireWakeLock();
-  }, [initAudio, startWorker, acquireWakeLock]);
+  }, [initAudio, startWorker]);
 
   const stop = useCallback(() => {
     stopWorker();
-    releaseWakeLock();
     setState(prev => ({ ...prev, isPlaying: false, currentBeat: 0 }));
-  }, [stopWorker, releaseWakeLock]);
+  }, [stopWorker]);
 
   const toggle = useCallback(() => {
     if (stateRef.current.isPlaying) stop();
@@ -269,24 +221,6 @@ export function useMetronome() {
     setState(prev => ({ ...prev, accentFirstBeat }));
   }, []);
 
-  const setVibrationEnabled = useCallback((vibrationEnabled: boolean) => {
-    setState(prev => ({ ...prev, vibrationEnabled }));
-  }, []);
-
-  const setWakeLockEnabled = useCallback((wakeLockEnabled: boolean) => {
-    setState(prev => ({ ...prev, wakeLockEnabled }));
-    if (wakeLockEnabled && stateRef.current.isPlaying) {
-      acquireWakeLock();
-    } else if (!wakeLockEnabled && wakeLockRef.current) {
-      wakeLockRef.current.release().catch(() => {});
-      wakeLockRef.current = null;
-    }
-  }, [acquireWakeLock]);
-
-  const setVisualFlashEnabled = useCallback((visualFlashEnabled: boolean) => {
-    setState(prev => ({ ...prev, visualFlashEnabled }));
-  }, []);
-
   const reset = useCallback(() => {
     stop();
     setState({
@@ -298,10 +232,6 @@ export function useMetronome() {
       subdivision: "quarter",
       timeSignature: "4/4",
       accentFirstBeat: true,
-      vibrationEnabled: false,
-      wakeLockEnabled: true,
-      visualFlashEnabled: true,
-      flashKey: 0,
     });
   }, [stop]);
 
@@ -316,9 +246,6 @@ export function useMetronome() {
     setSubdivision,
     setTimeSignature,
     setAccentFirstBeat,
-    setVibrationEnabled,
-    setWakeLockEnabled,
-    setVisualFlashEnabled,
     reset,
     beatsPerMeasure: getBeatsPerMeasure(state.timeSignature),
   };

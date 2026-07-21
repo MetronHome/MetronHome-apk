@@ -168,21 +168,3 @@ input[type="range"]::-moz-range-thumb {
   background: hsl(var(--muted));
   border-radius: 4px;
 }
-
-@keyframes beatFlash {
-  0%   { opacity: 0; }
-  20%  { opacity: 0.6; }
-  100% { opacity: 0; }
-}
-.beat-flash {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 40;
-  background: radial-gradient(circle at center, hsl(var(--glow) / 0.55) 0%, transparent 75%);
-  animation: beatFlash 160ms ease-out;
-}
-.beat-flash--accent {
-  background: radial-gradient(circle at center, hsl(var(--primary) / 0.75) 0%, transparent 80%);
-  animation: beatFlash 220ms ease-out;
-}
