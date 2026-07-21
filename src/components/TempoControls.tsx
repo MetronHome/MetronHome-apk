@@ -4,7 +4,9 @@ interface TempoControlsProps {
 }
 
 export function TempoControls({ bpm, onBpmChange }: TempoControlsProps) {
-  const progress = (bpm / 300) * 100;
+  const min = 30;
+  const max = 300;
+  const progress = ((bpm - min) / (max - min)) * 100;
 
   return (
     <div className="glass p-3 space-y-2">
@@ -33,15 +35,17 @@ export function TempoControls({ bpm, onBpmChange }: TempoControlsProps) {
           </button>
         </div>
       </div>
-      <input
-        type="range"
-        min={30}
-        max={300}
-        value={bpm}
-        onChange={(e) => onBpmChange(Number(e.target.value))}
-        className="w-full"
-        style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
-      />
+      <div className="flex items-center">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={bpm}
+          onChange={(e) => onBpmChange(Number(e.target.value))}
+          className="w-full"
+          style={{ "--range-progress": `${progress}%` } as React.CSSProperties}
+        />
+      </div>
     </div>
   );
 }
